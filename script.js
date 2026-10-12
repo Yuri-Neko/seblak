@@ -1,52 +1,18 @@
 (() => {
-  const config = window.SKUYLAND_CONFIG || {};
-  const number = String(config.whatsappNumber || "").replace(/\D/g, "");
-  const messageUrl = (message) => number
-    ? `https://wa.me/${number}?text=${encodeURIComponent(message)}`
-    : `https://wa.me/?text=${encodeURIComponent("Nomor WhatsApp Skuyland belum dikonfigurasi. " + message)}`;
-
-  document.querySelectorAll(".wa-link").forEach(link => {
-    link.href = messageUrl(config.whatsappGreeting || "Halo, saya ingin bertanya tentang menu Skuyland Seblak.");
-    link.addEventListener("click", event => {
-      if (!number) {
-        event.preventDefault();
-        alert("Nomor WhatsApp usaha belum diatur. Buka config.js lalu isi whatsappNumber dengan nomor resmi Skuyland.");
-      }
-    });
-  });
-
-  document.querySelectorAll(".quick-order").forEach(button => {
-    button.addEventListener("click", () => {
-      const item = button.dataset.item || "menu";
-      if (!number) {
-        alert("Nomor WhatsApp usaha belum diatur. Buka config.js lalu isi whatsappNumber dengan nomor resmi Skuyland.");
-        return;
-      }
-      window.open(messageUrl(`Halo Skuyland Seblak, saya ingin pesan/bertanya tentang ${item}. Apakah tersedia?`), "_blank", "noopener,noreferrer");
-    });
-  });
-
-  const filters = document.querySelectorAll(".filter");
-  const cards = document.querySelectorAll(".menu-card");
-  filters.forEach(filter => filter.addEventListener("click", () => {
-    filters.forEach(item => item.classList.toggle("active", item === filter));
-    const category = filter.dataset.filter;
-    cards.forEach(card => card.classList.toggle("hidden", category !== "all" && card.dataset.category !== category));
-  }));
-
-  const toggle = document.querySelector(".menu-toggle");
-  const nav = document.querySelector(".nav");
-  toggle?.addEventListener("click", () => {
-    const open = nav.classList.toggle("open");
-    toggle.setAttribute("aria-expanded", String(open));
-    toggle.setAttribute("aria-label", open ? "Tutup navigasi" : "Buka navigasi");
-    toggle.textContent = open ? "×" : "☰";
-  });
-  nav?.querySelectorAll("a").forEach(link => link.addEventListener("click", () => {
-    nav.classList.remove("open");
-    toggle?.setAttribute("aria-expanded", "false");
-    if (toggle) { toggle.textContent = "☰"; toggle.setAttribute("aria-label", "Buka navigasi"); }
-  }));
-  const year = document.getElementById("year");
-  if (year) year.textContent = new Date().getFullYear();
+const cfg=window.SKUYLAND_CONFIG||{};
+const phone=String(cfg.whatsappNumber||"").replace(/\D/g,"");
+const money=n=>"Rp"+new Intl.NumberFormat("id-ID",{maximumFractionDigits:0}).format(n);
+const menu=document.querySelector("#order-menu"),qty=document.querySelector("#order-qty"),level=document.querySelector("#order-level"),tops=[...document.querySelectorAll("[data-topping]")];
+const names={original:"Seblak Original",bakso:"Seblak Bakso",sosis:"Seblak Sosis",ceker:"Seblak Ceker",komplit:"Seblak Komplit",mie:"Mie Pedas"};
+function calc(){const op=menu?.selectedOptions[0],q=Math.max(1,Math.min(20,parseInt(qty?.value||"1",10)||1)),extras=tops.filter(x=>x.checked).map(x=>({name:x.dataset.topping,price:+x.dataset.price||0})),base=+(op?.dataset.price||10000),sum=(base+extras.reduce((a,x)=>a+x.price,0))*q;return {q,extras,base,sum,spice:level?.value||"1",name:names[op?.value]||"Seblak Original"}}
+function render(){if(!menu)return;const o=calc();document.querySelector("#order-total").textContent=money(o.sum);document.querySelector("#order-breakdown").textContent=o.q+" porsi · "+o.name+" · Level "+o.spice+(o.extras.length?" · + "+o.extras.map(x=>x.name).join(", "):"")}
+[menu,qty,level,...tops].filter(Boolean).forEach(x=>x.addEventListener("change",render));
+document.querySelector("#qty-minus")?.addEventListener("click",()=>{qty.value=Math.max(1,(+qty.value||1)-1);render()});
+document.querySelector("#qty-plus")?.addEventListener("click",()=>{qty.value=Math.min(20,(+qty.value||1)+1);render()});
+document.querySelector("#send-order")?.addEventListener("click",()=>{const o=calc(),msg=["Halo Skuyland Seblak, saya ingin memesan:",o.name,"Level pedas: "+o.spice,"Jumlah: "+o.q+" porsi","Topping: "+(o.extras.map(x=>x.name+" ("+money(x.price)+")").join(", ")||"tanpa tambahan"),"Estimasi total: "+money(o.sum),"Mohon konfirmasi ketersediaan dan total final."].join("\n");if(!phone){alert("Nomor WhatsApp resmi belum diatur di config.js. Pesanan belum dikirim.");return}location.href="https://wa.me/"+phone+"?text="+encodeURIComponent(msg)});
+document.querySelectorAll(".wa-link").forEach(a=>{a.href=phone?"https://wa.me/"+phone+"?text="+encodeURIComponent(cfg.whatsappGreeting||"Halo Skuyland Seblak, saya ingin bertanya."):"#kontak";a.addEventListener("click",e=>{if(!phone){e.preventDefault();alert("Isi nomor WhatsApp resmi di config.js agar pemesanan aktif.")}})});
+document.querySelectorAll(".quick-order").forEach(b=>b.addEventListener("click",()=>{const op=[...(menu?.options||[])].find(x=>(names[x.value]||"").toLowerCase()===(b.dataset.item||"").toLowerCase());if(op)menu.value=op.value;render();document.querySelector("#pesan")?.scrollIntoView({behavior:"smooth"})}));
+const fs=document.querySelectorAll(".filter"),cards=document.querySelectorAll(".menu-card");fs.forEach(f=>f.addEventListener("click",()=>{fs.forEach(x=>x.classList.toggle("active",x===f));cards.forEach(c=>c.classList.toggle("hidden",f.dataset.filter!=="all"&&c.dataset.category!==f.dataset.filter))}));
+const t=document.querySelector(".menu-toggle"),n=document.querySelector(".nav");t?.addEventListener("click",()=>{const o=n.classList.toggle("open");t.setAttribute("aria-expanded",String(o));t.textContent=o?"×":"☰"});n?.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>{n.classList.remove("open");t?.setAttribute("aria-expanded","false");if(t)t.textContent="☰"}));
+const y=document.querySelector("#year");if(y)y.textContent=new Date().getFullYear();render();
 })();
