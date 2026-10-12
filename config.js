@@ -1,9 +1,6 @@
-/*
-  PENGATURAN WEBSITE SKUYLAND
-  Ganti whatsappNumber dengan nomor WhatsApp usaha format internasional tanpa +, spasi, atau tanda hubung.
-  Contoh format: 6281234567890 (contoh format saja, bukan nomor usaha).
-  Isi alamat, jam buka, dan harga menu setelah dikonfirmasi.
-*/
+// Isi nomor WhatsApp resmi format internasional tanpa +, spasi, atau tanda hubung.
+// Contoh format saja: 6281234567890 (bukan nomor usaha).
+// Harga menu di website adalah estimasi awal, bukan harga resmi.
 window.SKUYLAND_CONFIG = {
   whatsappNumber: "",
   whatsappGreeting: "Halo Skuyland Seblak, saya ingin bertanya tentang menu dan pemesanan.",
