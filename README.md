@@ -1,6 +1,6 @@
 # Skuyland Seblak
 
-Website profil dan promosi CV Skuyland Kuliner Nusantara. Dibangun dengan HTML, CSS, dan JavaScript tanpa framework.
+Website profil dan promosi CV Skuyland Kuliner Nusantara. Skuyland Seblak mulai dibangun pada 26 Februari 2026. Website dibuat dengan HTML, CSS, dan JavaScript tanpa framework.
 
 ## Fitur
 - Desain responsif untuk desktop dan ponsel
